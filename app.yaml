@@ -1,0 +1,21 @@
+application: my-blog
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: yes
+
+handlers:
+- url: /static
+  static_dir: static
+- url: /signup
+  script: signup.app
+- url: /login
+  script: signup.app
+- url: /logout
+  script: signup.app
+- url: /.*
+  script: wiki.app
+
+libraries:
+- name: jinja2
+  version: latest

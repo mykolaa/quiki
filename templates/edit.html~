@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link type="text/css" rel="stylesheet" href="/static/main.css" />
+
+  <title>Myk's Wiki</title>
+</head>
+
+<body>
+  <div class="login-area">   
+    <a href="/login" class="login-link">
+      login
+    </a>
+  </div>
+	
+	<form method="post">
+		<label>
+			<textarea name="content">{{ content }}</textarea>
+		</label>
+		<input type="submit" value="Save">
+	</form>
+
+  </div>
+</body>
+
+</html>
+
