@@ -10,6 +10,15 @@ import models
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
 
+def get_current_user(cookie_str):
+	user = None
+	if cookie_str:
+		user_id = signup.check_secure_val(cookie_str)
+		if user_id:
+			user = models.get_user_by_id(user_id)
+	return user
+
+
 def get_page_name(requested_page):
 	if requested_page[0] == '/':
 		page_name = requested_page[1:]
@@ -27,7 +36,7 @@ class Handler(webapp2.RequestHandler):
         self.write(self.render_str(template, **kw))    
 
 class WikiPage(Handler):
-	def render_post(self, requested_page):
+	def render_page(self, requested_page):
 		page_name = get_page_name(requested_page)
 		page = models.get_page(page_name)
 		if page:
@@ -36,31 +45,25 @@ class WikiPage(Handler):
 			self.redirect("/_edit/%s" % page_name)
 	
 	def get(self, requested_page):
-		self.render_post(requested_page)
+		#user = signup.get_current_user()
+		self.render_page(requested_page)
 
 class EditPage(Handler):
 	def render_edit(self, content="", username=""):
 		self.render("edit.html", content=content, username = username)
 
 	def get(self, requested_page):
-		cookie_str = self.request.cookies.get('user_id')
-		if cookie_str:
-			user_id = signup.check_secure_val(cookie_str)
-			if user_id:
-				user = models.get_user_by_id(user_id)
-				if user:
-					page_name = get_page_name(requested_page)
-					page = models.get_page(page_name)
-					if page:
-						self.render_edit(page.content, user.username)
-					else:
-						self.render_edit()
-				else:
-					self.redirect("/signup")
+		user = get_current_user(self.request.cookies.get('user_id'))
+		if user:
+			page_name = get_page_name(requested_page)
+			page = models.get_page(page_name)
+			if page:
+				self.render_edit(page.content, user.username)
 			else:
-				self.redirect("/signup")
+				self.render_edit()
 		else:
 			self.redirect("/signup")
+			
 
 	def post(self, requested_page):
 		page_name = get_page_name(requested_page)

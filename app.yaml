@@ -1,4 +1,4 @@
-application: my-blog
+application: quiki
 version: 1
 runtime: python27
 api_version: 1
@@ -14,7 +14,7 @@ handlers:
 - url: /logout
   script: signup.app
 - url: /.*
-  script: wiki.app
+  script: main.app
 
 libraries:
 - name: jinja2
