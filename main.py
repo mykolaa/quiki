@@ -36,21 +36,27 @@ class Handler(webapp2.RequestHandler):
         self.write(self.render_str(template, **kw))    
 
 class WikiPage(Handler):
-	def render_page(self, requested_page):
-		page_name = get_page_name(requested_page)
-		page = models.get_page(page_name)
-		if page:
-			self.render("page.html", page=page)
-		else:
-			self.redirect("/_edit/%s" % page_name)
+	def render_page(self, content="", name="", username=""):
+		self.render("page.html", content = content, name = name, username = username)
 	
 	def get(self, requested_page):
-		#user = signup.get_current_user()
-		self.render_page(requested_page)
+		user = get_current_user(self.request.cookies.get('user_id'))
+		page_name = get_page_name(requested_page)
+		page = models.get_page(page_name)
+		if user:
+			if page:
+				self.render_page(page.content, page.key().name(), user.username)
+			else:
+				self.redirect("/_edit/%s" % page_name)
+		else:
+			if page:
+				self.render_page(page.content, page.key().name())
+			else:
+				self.redirect("/login")
 
 class EditPage(Handler):
 	def render_edit(self, content="", username=""):
-		self.render("edit.html", content=content, username = username)
+		self.render("edit.html", content = content, username = username)
 
 	def get(self, requested_page):
 		user = get_current_user(self.request.cookies.get('user_id'))
@@ -60,9 +66,9 @@ class EditPage(Handler):
 			if page:
 				self.render_edit(page.content, user.username)
 			else:
-				self.render_edit()
+				self.render_edit("", user.username)
 		else:
-			self.redirect("/signup")
+			self.redirect("/login")
 			
 
 	def post(self, requested_page):

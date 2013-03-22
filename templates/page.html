@@ -9,16 +9,19 @@
 <body>
 
   <div class="login-area">
-
-	<a href="/_edit/{{ page.key().name() }}" class="login-link">
-      edit
-    </a>
-    <a href="/login" class="login-link">
-      login
-    </a>
-	<a href="/signup" class="login-link">
-      signup
-    </a>
+	{% if username %}
+		<a href="/_edit/{{ name }}" class="login-link">
+      		edit
+    	</a>
+		{{ username }}(<a href="/logout" class="login-link">logout</a>)
+	{% else %}
+		<a href="/login" class="login-link">
+      		login
+    	</a>
+		<a href="/signup" class="login-link">
+      		signup
+    	</a>
+	{% endif %}
 	
   </div>
 	
@@ -26,7 +29,7 @@
   
   <div class="page">
   	<div class="page-content">
-    	{{ page.content|escape }}
+    	{{ content|escape }}
 	</div>
    </div>
    <br><br>
