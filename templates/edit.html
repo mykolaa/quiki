@@ -8,13 +8,7 @@
 
 <body>
   <div class="login-area">
-	<a href="/login" class="login-link">
-	  {% if username %}
-        {{ username }}(logout)
-      {% else %}
-        login
-      {% endif %}
-    </a>
+	{{ username }}(<a href="/logout" class="login-link">logout</a>)
   </div>
 	
 	<form method="post">

@@ -21,7 +21,10 @@ def get_current_user(cookie_str):
 
 def get_page_name(requested_page):
 	if requested_page[0] == '/':
-		page_name = requested_page[1:]
+		if len(requested_page) == 1:
+			page_name = ""
+		else:
+			page_name = requested_page[1:]
 	else:
 		page_name = requested_page
 	return page_name
@@ -40,41 +43,61 @@ class WikiPage(Handler):
 		self.render("page.html", content = content, name = name, username = username)
 	
 	def get(self, requested_page):
+		referer_val = requested_page		
 		user = get_current_user(self.request.cookies.get('user_id'))
 		page_name = get_page_name(requested_page)
-		page = models.get_page(page_name)
+
+		if page_name == "":
+			page = models.get_page("/")
+		else:
+			page = models.get_page(page_name)
+		
 		if user:
 			if page:
-				self.render_page(page.content, page.key().name(), user.username)
+				if page.key().name() == "/":
+					self.render_page(page.content, "", user.username)
+				else:
+					self.render_page(page.content, page.key().name(), user.username)
 			else:
 				self.redirect("/_edit/%s" % page_name)
 		else:
 			if page:
-				self.render_page(page.content, page.key().name())
+				if page.key().name() == "/":
+					self.render_page(page.content, "")
+				else:
+					self.render_page(page.content, page.key().name())
 			else:
-				self.redirect("/login")
+				self.redirect("/login?referer_val=%s" % referer_val)
 
 class EditPage(Handler):
 	def render_edit(self, content="", username=""):
 		self.render("edit.html", content = content, username = username)
 
 	def get(self, requested_page):
+		referer_val = requested_page
 		user = get_current_user(self.request.cookies.get('user_id'))
 		if user:
 			page_name = get_page_name(requested_page)
-			page = models.get_page(page_name)
+			if page_name == "":
+				page = models.get_page("/")
+			else:
+				page = models.get_page(page_name)
+				
 			if page:
 				self.render_edit(page.content, user.username)
 			else:
 				self.render_edit("", user.username)
 		else:
-			self.redirect("/login")
+			self.redirect("/login?referer_val=%s" % referer_val)
 			
 
 	def post(self, requested_page):
 		page_name = get_page_name(requested_page)
 		content = cgi.escape(self.request.get("content"))
-		models.set_page(page_name, content)
+		if page_name == "":
+			models.set_page("/", content)
+		else:
+			models.set_page(page_name, content)
 
 		self.redirect("/%s" % page_name)
 
@@ -82,5 +105,5 @@ class EditPage(Handler):
 PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
 app = webapp2.WSGIApplication([('/_edit' + PAGE_RE, EditPage),
                                (PAGE_RE, WikiPage),
-                               ])
+                              ])
 

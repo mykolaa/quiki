@@ -105,14 +105,19 @@ class SignupPage(Handler):
 			
 			cookie_val = make_secure_val(str(user.key().id()))
 			self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/' % cookie_val)
-			self.redirect("/welcome")
+			referer_val = self.request.get('referer_val')
+			if referer_val:
+				self.redirect(referer_val)
+			else:
+				self.redirect("/")
 
 class LoginPage(Handler):
-	def render_login(self, login_error=""):
-		self.render("login.html", login_error=login_error)
+	def render_login(self, referer_val="", login_error=""):
+		self.render("login.html", name=referer_val, login_error=login_error)
 
 	def get(self):
-		self.render_login()
+		referer_val = self.request.get('referer_val')			
+		self.render_login(referer_val)
 
 	def post(self):
 		username = cgi.escape(self.request.get("username"))
@@ -123,16 +128,19 @@ class LoginPage(Handler):
 		if user and valid_pw(username, password, user.password):
 			cookie_val = make_secure_val(str(user.key().id()))
 			self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/' % str(cookie_val))
-			self.redirect("/welcome")
+			referer_val = self.request.get('referer_val')			
+			#referer_val = self.request.headers['Referer']
+			self.redirect(referer_val)
 		else:
 			login_error = "Invalid login"
-			self.render_login(login_error)
+			self.render_login(referer_val, login_error)
 
 class LogoutPage(Handler):
 	def get(self):
 		cookie_val = ""
 		self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/' % cookie_val)
-		self.redirect("/signup")
+		referer_val = self.request.headers['Referer']
+		self.redirect(referer_val)
 
 class WelcomePage(Handler):
 	def render_welcome(self, username=""):

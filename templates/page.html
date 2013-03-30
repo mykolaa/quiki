@@ -15,10 +15,10 @@
     	</a>
 		{{ username }}(<a href="/logout" class="login-link">logout</a>)
 	{% else %}
-		<a href="/login" class="login-link">
+		<a href="/login?referer_val=/{{ name }}" class="login-link">
       		login
     	</a>
-		<a href="/signup" class="login-link">
+		<a href="/signup?referer_val=/{{ name }}" class="login-link">
       		signup
     	</a>
 	{% endif %}
