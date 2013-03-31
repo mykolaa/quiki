@@ -122,14 +122,12 @@ class LoginPage(Handler):
 	def post(self):
 		username = cgi.escape(self.request.get("username"))
 		password = cgi.escape(self.request.get("password"))
-		
+		referer_val = self.request.get('referer_val')
 		user = models.get_user_by_username(username)
 
 		if user and valid_pw(username, password, user.password):
 			cookie_val = make_secure_val(str(user.key().id()))
 			self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/' % str(cookie_val))
-			referer_val = self.request.get('referer_val')			
-			#referer_val = self.request.headers['Referer']
 			self.redirect(referer_val)
 		else:
 			login_error = "Invalid login"
