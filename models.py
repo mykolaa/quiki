@@ -13,6 +13,9 @@ class User(db.Model):
 	email = db.StringProperty()
 	created = db.DateTimeProperty(auto_now_add = True)
 
+def page_k(page_name='default_page'):
+    return db.Key('Quiki', page_name)
+
 def get_page(page_name):
 	key = db.Key.from_path('Page', page_name)
 	page = db.get(key)

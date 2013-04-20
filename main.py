@@ -101,9 +101,42 @@ class EditPage(Handler):
 
 		self.redirect("/%s" % page_name)
 
+class HistoryPage(Handler):
+	def render_history(self, content="", username=""):
+		self.render("history.html", versions = versions, username = username)
+
+	def get(self, requested_page):
+		referer_val = requested_page
+		user = get_current_user(self.request.cookies.get('user_id'))
+		if user:
+			page_name = get_page_name(requested_page)
+			if page_name == "":
+				versions = models.get_versions("/")
+			else:
+				versions = models.get_versions(page_name)
+				
+			if page:
+				self.render_history(page.content, user.username)
+			else:
+				self.render_edit("", user.username)
+		else:
+			self.redirect("/login?referer_val=%s" % referer_val)
+			
+
+	def post(self, requested_page):
+		page_name = get_page_name(requested_page)
+		content = cgi.escape(self.request.get("content"))
+		if page_name == "":
+			models.set_page("/", content)
+		else:
+			models.set_page(page_name, content)
+
+		self.redirect("/%s" % page_name)
+
 
 PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
 app = webapp2.WSGIApplication([('/_edit' + PAGE_RE, EditPage),
+							   ('/_history' + PAGE_RE, HistoryPage),
                                (PAGE_RE, WikiPage),
                               ])
 
