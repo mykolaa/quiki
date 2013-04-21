@@ -136,7 +136,7 @@ class HistoryPage(Handler):
 
 PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
 app = webapp2.WSGIApplication([('/_edit' + PAGE_RE, EditPage),
-							   ('/_history' + PAGE_RE, HistoryPage),
+                               ('/_history' + PAGE_RE, HistoryPage),
                                (PAGE_RE, WikiPage),
                               ])
 
