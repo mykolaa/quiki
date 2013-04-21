@@ -21,6 +21,11 @@ def get_page(page_name):
 	page = db.get(key)
 	return page
 
+def get_versions(parent_k):
+    page_q = Page.all()
+    page_q.ancestor(parent_k)
+    return page_q.run()
+
 def set_page(page_name, content):
 	p = Page(key_name = page_name, content = content)
 	p.put()

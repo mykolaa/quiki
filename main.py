@@ -111,29 +111,17 @@ class HistoryPage(Handler):
 		if user:
 			page_name = get_page_name(requested_page)
 			if page_name == "":
-				versions = models.get_versions("/")
+				versions = models.get_versions(models.page_k("/"))
 			else:
-				versions = models.get_versions(page_name)
+				versions = models.get_versions(models.page_k(page_name))
 				
-			if page:
-				self.render_history(page.content, user.username)
+			if versions:
+				self.render_history(versions, user.username)
 			else:
 				self.render_edit("", user.username)
 		else:
 			self.redirect("/login?referer_val=%s" % referer_val)
 			
-
-	def post(self, requested_page):
-		page_name = get_page_name(requested_page)
-		content = cgi.escape(self.request.get("content"))
-		if page_name == "":
-			models.set_page("/", content)
-		else:
-			models.set_page(page_name, content)
-
-		self.redirect("/%s" % page_name)
-
-
 PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
 app = webapp2.WSGIApplication([('/_edit' + PAGE_RE, EditPage),
                                ('/_history' + PAGE_RE, HistoryPage),
