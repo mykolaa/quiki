@@ -10,6 +10,8 @@ import models
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
 
+DEFAULT_PAGE_NAME = 'root'
+
 def get_current_user(cookie_str):
 	user = None
 	if cookie_str:
@@ -48,21 +50,21 @@ class WikiPage(Handler):
 		page_name = get_page_name(requested_page)
 
 		if page_name == "":
-			page = models.get_page("/")
+			page = models.get_page_by_path(DEFAULT_PAGE_NAME)
 		else:
-			page = models.get_page(page_name)
+			page = models.get_page_by_path(page_name)
 		
 		if user:
 			if page:
-				if page.key().name() == "/":
-					self.render_page(page.content, "", user.username)
-				else:
-					self.render_page(page.content, page.key().name(), user.username)
+#				if page.key().name() == "root":
+#					self.render_page(page.content, "", user.username)
+#				else:
+				self.render_page(page.content, page.key().name(), user.username)
 			else:
 				self.redirect("/_edit/%s" % page_name)
 		else:
 			if page:
-				if page.key().name() == "/":
+				if page.key().name() == "root":
 					self.render_page(page.content, "")
 				else:
 					self.render_page(page.content, page.key().name())
@@ -79,7 +81,7 @@ class EditPage(Handler):
 		if user:
 			page_name = get_page_name(requested_page)
 			if page_name == "":
-				page = models.get_page("/")
+				page = models.get_page("root")
 			else:
 				page = models.get_page(page_name)
 				
@@ -95,14 +97,14 @@ class EditPage(Handler):
 		page_name = get_page_name(requested_page)
 		content = cgi.escape(self.request.get("content"))
 		if page_name == "":
-			models.set_page("/", content)
+			models.set_page("root", content)
 		else:
 			models.set_page(page_name, content)
 
 		self.redirect("/%s" % page_name)
 
 class HistoryPage(Handler):
-	def render_history(self, content="", username=""):
+	def render_history(self, versions="", username=""):
 		self.render("history.html", versions = versions, username = username)
 
 	def get(self, requested_page):
@@ -111,7 +113,7 @@ class HistoryPage(Handler):
 		if user:
 			page_name = get_page_name(requested_page)
 			if page_name == "":
-				versions = models.get_versions(models.page_k("/"))
+				versions = models.get_versions(models.page_k("root"))
 			else:
 				versions = models.get_versions(models.page_k(page_name))
 				

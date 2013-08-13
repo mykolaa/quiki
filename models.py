@@ -13,22 +13,29 @@ class User(db.Model):
 	email = db.StringProperty()
 	created = db.DateTimeProperty(auto_now_add = True)
 
-def page_k(page_name='default_page'):
-    return db.Key('Quiki', page_name)
+def page_key(page_name):
+    return db.Key.from_path('Quiki', page_name)
 
-def get_page(page_name):
-	key = db.Key.from_path('Page', page_name)
-	page = db.get(key)
-	return page
+def get_page_by_path(page_name):
+	q = Page.all()
+	q.ansestor(page_key(page_name))
+	q.order('-date')
+	return q.get()
 
-def get_versions(parent_k):
-    page_q = Page.all()
-    page_q.ancestor(parent_k)
-    return page_q.run()
+def get_page_by_id(v, page_name):
+	return Page.get_by_id(int(v), parent = page_key(page_name))
+	
+
+def get_page_versions(page_name):
+	q = Page.all()
+	q.ancestor(page_key(page_name))
+	q.order('-date')
+	return q.run(limit=10)
 
 def set_page(page_name, content):
-	p = Page(key_name = page_name, content = content)
-	p.put()
+	page = Page(parent=page_key(page_name))
+	page.content = content
+	page.put()
 
 def get_user_by_id(user_id):
 	key = db.Key.from_path('User', int(user_id))

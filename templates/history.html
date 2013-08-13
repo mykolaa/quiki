@@ -29,15 +29,19 @@
 	
   </div>
 	
-  <div id="content">
+  <hr>
+  {% for version in versions %}
+    <div class="version">
+      <div class="page-title">{{version.created}} {{version.content|escape}}</div>
+	  <a href="/_edit/{{ name }}" class="login-link">
+      	edit
+      </a> |
+	  <a href="/{{ name }}" class="login-link">
+      	view
+      </a>
+    </div>
+  {% endfor %}
   
-  <div class="page">
-  	<div class="page-content">
-    	{{ content|escape }}
-	</div>
-   </div>
-   <br><br>
-  </div>
 </body>
 
 </html>
